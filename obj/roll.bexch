@@ -1,0 +1,23 @@
+[GENERATED OBJECT FILE]
+b__roll.o
+[PROJECT FILES]
+C:\Users\Zuzanna\Documents\PWIR\Roll\roll.gpr
+20210115152910
+[BOUND OBJECT FILES]
+C:\Users\Zuzanna\Documents\PWIR\Roll\obj\player_operations.o
+C:\Users\Zuzanna\Documents\PWIR\Roll\obj\roll.o
+[GENERATED SOURCE FILES]
+b__roll.ads
+b__roll.adb
+b__roll.ali
+[RESULTING OPTIONS]
+-LC:\Users\Zuzanna\Documents\PWIR\Roll\obj\
+-LC:\Users\Zuzanna\Documents\PWIR\Roll\obj\
+-LC:/gnat/2019/lib/gcc/x86_64-pc-mingw32/8.3.1/adalib/
+-static
+-static-libgcc
+C:/gnat/2019/lib/gcc/x86_64-pc-mingw32/8.3.1/adalib/libgnarl.a
+C:/gnat/2019/lib/gcc/x86_64-pc-mingw32/8.3.1/adalib/libgnat.a
+-Xlinker
+--stack=0x200000,0x1000
+-mthreads
