@@ -31,7 +31,7 @@ RV MAX_TASK_ENTRIES=2
 RV MAX_TASKS=1+
 RV MAX_ENTRY_QUEUE_LENGTH=1+
 
-U roll%b		roll.adb		5f770055 NE OO SU
+U roll%b		roll.adb		ae2972ab NE OO SU
 W ada%s			ada.ads			ada.ali
 Z ada.exceptions%s	a-except.adb		a-except.ali
 W ada.numerics%s	a-numeri.ads		a-numeri.ali
@@ -43,13 +43,14 @@ Z ada.tags%s		a-tags.adb		a-tags.ali
 W ada.text_io%s		a-textio.adb		a-textio.ali
 W player_operations%s	player_operations.adb	player_operations.ali
 Z system%s		system.ads		system.ali
+Z system.concat_2%s	s-conca2.adb		s-conca2.ali
 Z system.concat_3%s	s-conca3.adb		s-conca3.ali
+Z system.concat_4%s	s-conca4.adb		s-conca4.ali
 Z system.concat_5%s	s-conca5.adb		s-conca5.ali
 Z system.concat_6%s	s-conca6.adb		s-conca6.ali
 Z system.finalization_masters%s  s-finmas.adb	s-finmas.ali
 Z system.img_int%s	s-imgint.adb		s-imgint.ali
 Z system.parameters%s	s-parame.adb		s-parame.ali
-Z system.random_numbers%s  s-rannum.adb		s-rannum.ali
 Z system.secondary_stack%s  s-secsta.adb	s-secsta.ali
 Z system.soft_links%s	s-soflin.adb		s-soflin.ali
 Z system.standard_library%s  s-stalib.adb	s-stalib.ali
@@ -83,12 +84,14 @@ D interfac.ads		20190518041256 5ab55268 interfaces%s
 D i-c.ads		20190518041256 5421119b interfaces.c%s
 D i-cstrin.ads		20190518041256 341d0ddf interfaces.c.strings%s
 D i-cstrea.ads		20190518041256 e53d8b8e interfaces.c_streams%s
-D player_operations.ads	20210118112638 b2503462 player_operations%s
-D roll.adb		20210118112836 2460ccee roll%b
+D player_operations.ads	20210119195810 b460ac5d player_operations%s
+D roll.adb		20210119195810 d30e262f roll%b
 D system.ads		20190518041258 32a08138 system%s
 D s-atacco.ads		20190518041258 4c36d12f system.address_to_access_conversions%s
 D s-atocou.ads		20190518041258 b45c2d8d system.atomic_counters%s
+D s-conca2.ads		20190518041256 02a0d7d0 system.concat_2%s
 D s-conca3.ads		20190518041258 0b705ca5 system.concat_3%s
+D s-conca4.ads		20190518041258 7e642b20 system.concat_4%s
 D s-conca5.ads		20190518041256 875e432e system.concat_5%s
 D s-conca6.ads		20190518041256 d2c72db2 system.concat_6%s
 D s-crtl.ads		20190518041256 0ebbdb71 system.crtl%s
@@ -97,14 +100,11 @@ D s-ficobl.ads		20190518041258 078245e4 system.file_control_block%s
 D s-finmas.ads		20190518041256 7811a767 system.finalization_masters%s
 D s-finroo.ads		20190518041258 4ff27390 system.finalization_root%s
 D s-imgint.ads		20190518041256 02dbe0c2 system.img_int%s
-D s-imguns.ads		20190518041256 9ff43cf7 system.img_uns%s
 D s-memory.ads		20190518041256 597d6634 system.memory%s
 D s-multip.ads		20190518041256 38ac9f73 system.multiprocessors%s
 D s-osinte.ads		20190518041258 97504df8 system.os_interface%s
 D s-parame.ads		20190518041258 48ec542b system.parameters%s
 D s-rannum.ads		20190518041256 99ade2f2 system.random_numbers%s
-D s-rannum.adb		20190518041258 20ba1217 system.random_numbers%b
-D s-ransee.ads		20190518041258 01a57b33 system.random_seed%s
 D s-secsta.ads		20190518041258 20bbe636 system.secondary_stack%s
 D s-soflin.ads		20190518041256 a7318a92 system.soft_links%s
 D s-stache.ads		20190518041258 a37c21ec system.stack_checking%s
@@ -126,106 +126,130 @@ D s-tasren.ads		20190518041258 a67a9949 system.tasking.rendezvous%s
 D s-tassta.ads		20190518041258 cca55c94 system.tasking.stages%s
 D s-traent.ads		20190518041256 005bf670 system.traceback_entries%s
 D s-unstyp.ads		20190518041256 34867c83 system.unsigned_types%s
-D s-valuns.ads		20190518041258 35067db9 system.val_uns%s
 D s-wchcon.ads		20190518041256 1b7d22d2 system.wch_con%s
 D s-win32.ads		20190518041256 90ecf4e6 system.win32%s
 G a e
-G c Z b b [roll standard 11 11 none]
-G r s planet_array [roll standard 11 11 none] [planet_arrayIP player_operations 28 9 none]
-G r l planet_array [roll standard 11 11 none] [planet_arrayDI player_operations 28 9 none]
-G r k planet_array [roll standard 11 11 none] [planet_arrayDF player_operations 28 9 none]
-G r c none [roll standard 11 11 none] [get_initial_planets player_operations 31 14 none]
+G c Z b b [roll standard 12 11 none]
+G r c none [roll standard 12 11 none] [activated_to_string player_operations 66 13 none]
+G r s dice_array [roll standard 12 11 none] [dice_arrayIP player_operations 18 9 none]
+G r s planet_array [roll standard 12 11 none] [planet_arrayIP player_operations 28 9 none]
+G r l planet_array [roll standard 12 11 none] [planet_arrayDI player_operations 28 9 none]
+G r k planet_array [roll standard 12 11 none] [planet_arrayDF player_operations 28 9 none]
+G r c none [roll standard 12 11 none] [get_initial_planets player_operations 31 14 none]
+G r c none [roll standard 12 11 none] [roll_dices player_operations 36 14 none]
+G r c none [roll standard 12 11 none] [pick_action player_operations 44 13 none]
+G r c none [roll standard 12 11 none] [dices_to_string player_operations 40 13 none]
+G r c none [roll standard 12 11 none] [jokers_to_picked_action player_operations 46 14 none]
+G r c none [roll standard 12 11 none] [points_total player_operations 68 13 none]
+G r c none [roll standard 12 11 none] [explore player_operations 48 14 none]
+G r c none [roll standard 12 11 none] [settle player_operations 50 14 none]
+G r c none [roll standard 12 11 none] [produce player_operations 55 14 none]
+G r c none [roll standard 12 11 none] [deliver player_operations 59 14 none]
+G r c none [roll standard 12 11 none] [unused_dices_to_cup player_operations 64 14 none]
+G r c none [roll standard 12 11 none] [buy_dices player_operations 62 14 none]
 X 1 ada.ads
-16K9*Ada 20e8 23|1r6 2r6 3r6 6r5 131r34 155r58 155r109
+16K9*Ada 20e8 23|1r6 2r6 3r6 4r5 7r5
 X 7 a-numeri.ads
-16K13*Numerics 32e17 23|2r10 131r38
+16K13*Numerics 32e17 23|2r10
 X 8 a-nudira.ads
-44k22*Discrete_Random 75e33 23|2w19 131r47
-50R9 Generator<41|63R9> 23|144r26[131]
-52V13 Random{boolean} 23|175s13[131]
-55U14 Reset<41|100p14> 23|148s7[131]
-X 9 a-nudira.adb
-53V16 Random[41|83]{boolean} 42|392b13[23|131]
+44k22*Discrete_Random 75e33 23|2w19
 X 12 a-string.ads
-16K13*Strings 35e16 23|3r10 155r62 155r113
+16K13*Strings 35e16 23|3r10 4r9
 X 14 a-strunb.ads
-82K21*Unbounded 756e26 23|3w18 155r70 155r121
-116V13*To_String{string} 23|155s80 155s131
+82K21*Unbounded 756e26 23|3w18 4r17
+116V13*To_String{string} 23|128s51 175s58 175s94 182s40
 X 16 a-textio.ads
-57K13*Text_IO 727e16 23|1w10 6r9
-508U14*Put_Line 23|90s7 95s16 100s19 105s19 108s22 119s16 149s7 155s7 160s10
-. 166s13 173s10 177s13 181s13 195s3 196s3
-X 18 interfac.ads
-74M9*Unsigned_32
-77M9*Unsigned_64
+57K13*Text_IO 727e16 23|1w10 7r9
+508U14*Put_Line 23|109s7 114s16 122s19 128s19 142s16 169s7 175s7 180s10 182s10
+. 190s13 200s13 202s13 207s13 209s13 213s13 215s13 219s13 221s13 225s10 227s10
+. 230s13 243s4 244s4
 X 22 player_operations.ads
-4K9*Player_Operations 33e22 23|4w6 5r5
-7A9*Activated(boolean)<integer> 23|39r26 87r24 123r35 142r26
-8I9*Credits<integer> 23|135r26
-9n24*White{9E9} 23|138r49 139r51
-9n72*D_Null{9E9} 23|138r66 139r68
-17A9*Dices(9E9)<integer> 23|138r26 139r26
-20r7*Name{14|87R9} 23|155r101 155r152
-28A9*Planet_Array(19R9)<integer> 23|140r26 141r26
-31U14*get_initial_planets 23|152s7
+4K9*Player_Operations 70e22 23|5w6 6r5
+7A9*Activated(boolean)<integer> 23|47r26 106r24 146r35 164r26
+8I9*Credits<integer> 23|155r26
+9n24*White{9E9} 23|158r50 159r54
+9n72*D_Null{9E9} 23|158r67 159r71 162r52
+17A9*Dices(9E9)<integer> 23|158r26 159r26 162r26
+18A9*Dice_Array(13R9)<integer> 23|157r26
+20r7*Name{14|87R9} 23|175r79 175r115
+28A9*Planet_Array(19R9)<integer> 23|160r26 161r26
+31U14*get_initial_planets 23|172s7
+36U14*roll_dices 23|179s10
+40V13*dices_to_string{14|87R9} 23|182s50
+44V13*pick_action{integer} 23|181s26
+46U14*jokers_to_picked_action 23|184s10
+48U14*explore 23|201s13
+50U14*settle 23|208s13
+55U14*produce 23|214s13
+59U14*deliver 23|220s13
+62U14*buy_dices 23|226s10
+64U14*unused_dices_to_cup 23|224s10
+66V13*activated_to_string{14|87R9} 23|128s61
+68V13*points_total{integer} 23|190s59
 X 23 roll.adb
-11U11*Roll 11b11 197l5 197t9
-13w14 Init_Semafor 44b19 53l8 53t20 151r7 153r7
-14Y13 Wait 45b13 48l11 48t15 151s20
-15U17 Signal 49b17 52l11 52t17 153s20
-17b7 Sem{boolean} 45r23 47r10 51r10
-22W18 S 26E7 27l7 27e8 56b18 66l7 66t8 81r28
-23Y11 Wait 57b11 60l9 60t13 163s18
-24U15 Signal 62b15 65l9 65t15 109s30
-26b7 Sem{boolean} 57r21 59r7 64r9
-29w13 F 68b18 78l7 78t8 99r34 101r19 112r22 165r13
-30Y11 Wait 69b11 72l9 72t13 101s21
-31V14 Get{boolean} 74b14 77l9 77t12 99s36 112s24 165s15
-33b7 Sem{boolean} 69r21 71r7 76r14
-37t8 Game 84b14 128l8 128t12 162r10 170r10
-38Y11 Sync 38>16 38>44 94b20 116l17 116t21 162s15
-38i16 PickedAction{positive} 95r74 96r33
-38b44 Finish{boolean} 99r19
-39Y11 Get 39=15 123b20 125l17 125t20 170s15
-39a15 A{22|7A9} 124m16 124r16
-42T13 Player 42d20 130b14 186l8 186t14 189r6 190r6 191r6 192r6
-42i20 P{positive} 145r38 149r22 155r22 160r25 163r15 166r28 173r25 177r28
-. 181r28
-81a3 Sems(22W18) 109r22 163r10
-85i5 Ready{integer} 97m16 97r25 104r19 106m19
-86b5 Finished{boolean} 113m22 118r16
-87a5 ActivatedActions{22|7A9} 96m16 124r21
-94i25 PickedAction{positive}
-94b53 Finish{boolean}
-107i23 I{integer} 108r62 109r27
-123a24 A{22|7A9}
-131K15 Bool_Random[8|44] 132r11
-135i7 Money{22|8I9}
-136i7 Tiles{natural} 176m13 176r22 177r66 180r13
-138a7 Population{22|17A9}
-139a7 Cup{22|17A9}
-140a7 Planets{22|28A9} 152m27 155r90 155r141
-141a7 Planet_Queue{22|28A9} 152m36
-142a7 ActivatedActions{22|7A9} 170m19 170r19
-143b7 Finished{boolean} 162r34 182m13
-144r7 G{8|50R9[131]} 148r13 175r20
-145i7 PickedAction{positive} 162r20
-189t1 P1{42T13}
-190t1 P2{42T13}
-191t1 P3{42T13}
-192t1 P4{42T13}
+12U11*Roll 12b11 245l5 245t9
+15w14 Sack_Semafor 53b19 62l8 62t20 199r13 203r13
+16Y13 Wait 54b13 57l11 57t15 199s26
+17U17 Signal 58b17 61l11 61t17 203s26
+19b7 Sem{boolean} 54r23 56r10 60r10
+22w14 Init_Semafor 64b19 73l8 73t20 171r7 173r7
+23Y13 Wait 65b13 68l11 68t15 171s20
+24U17 Signal 69b17 72l11 72t17 173s20
+26b7 Sem{boolean} 65r23 67r10 71r10
+30W18 S 34E7 35l7 35e8 75b18 85l7 85t8 100r28
+31Y11 Wait 76b11 79l9 79t13 187s18
+32U15 Signal 81b15 84l9 84t15 132s30
+34b7 Sem{boolean} 76r21 78r7 83r9
+37w13 F 87b18 97l7 97t8 121r34 123r19 135r22 189r13
+38Y11 Wait 88b11 91l9 91t13 123s21
+39V14 Get{boolean} 93b14 96l9 96t12 121s36 135s24 189s15
+41b7 Sem{boolean} 88r21 90r7 95r14
+45t8 Game 103b14 151l8 151t12 186r10 194r10
+46Y11 Sync 46>16 46>44 113b20 139l17 139t21 186s15
+46i16 PickedAction{positive} 114r74 118r33
+46b44 Finish{boolean} 121r19
+47Y11 Get 47=15 146b20 148l17 148t20 194s15
+47a15 A{22|7A9} 147m16 147r16
+50T13 Player 50d20 153b14 235l8 235t14 238r6 239r6 240r6 241r6
+50i20 P{positive} 166r38 169r22 175r22 180r25 182r25 187r15 190r28 200r28
+. 202r28 207r28 209r28 213r28 215r28 219r28 221r28 225r25 227r25 230r28
+100a3 Sems(30W18) 132r22 187r10
+104i5 Ready{integer} 115r19 119m16 119r25 126r19 129m19
+105b5 Finished{boolean} 136m22 141r16
+106a5 ActivatedActions{22|7A9} 116m19 118m16 128r81 147r21
+113i25 PickedAction{positive}
+113b53 Finish{boolean}
+130i23 I{integer} 132r27
+146a24 A{22|7A9}
+155i7 Money{22|8I9} 172m50 172r50 201m48 201r48 208m90 208r90 226m37 226r37
+156i7 Tiles{positive} 207r68 208m83 208r83 209r67 229r13
+157a7 Roll_Output{22|18A9} 179m26 181r38 182r66 184m34 184r34 201m21 201r21
+. 208m20 208r20 214m21 214r21 220m21 220r21 224m30 224r30
+158a7 Population{22|17A9} 172m57 172r57 201m55 201r55 208m56 208r56 220m51
+. 220r51 226m20 226r20
+159a7 Cup{22|17A9} 172m69 172r69 179r21 208m78 208r78 214m43 214r43 220m63
+. 220r63 224m43 224r43 226m32 226r32
+160a7 Planets{22|28A9} 172m27 175r68 175r104 190r72 208m47 208r47 214m34
+. 214r34 220m34 220r34
+161a7 Planet_Queue{22|28A9} 172m36 201m34 201r34 208m33 208r33
+162a7 Settlers{22|17A9} 208m68 208r68
+163i7 Points{integer} 190r81 220m43 220r43
+164a7 ActivatedActions{22|7A9} 194m19 194r19 198r13 206r13 212r13 218r13
+165b7 Finished{boolean} 186r34 231m13
+166i7 PickedAction{positive} 181m10 182r97 184r47 186r20
+238t1 P1{50T13}
+239t1 P2{50T13}
+240t1 P3{50T13}
+241t1 P4{50T13}
 X 24 system.ads
 67M9*Address
-X 37 s-memory.ads
+X 38 s-memory.ads
 53V13*Alloc{24|67M9} 103i<c,__gnat_malloc>22
 68U14*Free 104i<c,__gnat_free>22
 76V13*Realloc{24|67M9} 105i<c,__gnat_realloc>22
-X 41 s-rannum.ads
-75V13*Random{18|74M9} 42|221i21
-76V13*Random{18|77M9} 42|221i21
-X 47 s-stausa.ads
+X 46 s-stausa.ads
 203U14*Initialize 204i<c,__gnat_stack_usage_initialize>22
 268U14*Output_Results 272i<c,__gnat_stack_usage_output_results>22
-X 49 s-stalib.adb
+X 48 s-stalib.adb
 93U14 Break_Start 94i<c,__gnat_break_start>22
 

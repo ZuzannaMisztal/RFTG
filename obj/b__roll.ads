@@ -37,7 +37,7 @@ package ada_main is
    pragma Export (C, main, "main");
 
    type Version_32 is mod 2 ** 32;
-   u00001 : constant Version_32 := 16#5f770055#;
+   u00001 : constant Version_32 := 16#ae2972ab#;
    pragma Export (C, u00001, "rollB");
    u00002 : constant Version_32 := 16#050ff2f0#;
    pragma Export (C, u00002, "system__standard_libraryB");
@@ -375,9 +375,9 @@ package ada_main is
    pragma Export (C, u00168, "system__file_ioS");
    u00169 : constant Version_32 := 16#cf3f1b90#;
    pragma Export (C, u00169, "system__file_control_blockS");
-   u00170 : constant Version_32 := 16#a30748d2#;
+   u00170 : constant Version_32 := 16#3b90b1a3#;
    pragma Export (C, u00170, "player_operationsB");
-   u00171 : constant Version_32 := 16#a4064439#;
+   u00171 : constant Version_32 := 16#a236dc06#;
    pragma Export (C, u00171, "player_operationsS");
    u00172 : constant Version_32 := 16#ec9cfed1#;
    pragma Export (C, u00172, "system__random_numbersB");
@@ -395,14 +395,14 @@ package ada_main is
    pragma Export (C, u00178, "system__val_unsB");
    u00179 : constant Version_32 := 16#33208002#;
    pragma Export (C, u00179, "system__val_unsS");
-   u00180 : constant Version_32 := 16#608e2cd1#;
-   pragma Export (C, u00180, "system__concat_5B");
-   u00181 : constant Version_32 := 16#b5fec216#;
-   pragma Export (C, u00181, "system__concat_5S");
-   u00182 : constant Version_32 := 16#932a4690#;
-   pragma Export (C, u00182, "system__concat_4B");
-   u00183 : constant Version_32 := 16#4cc4aa18#;
-   pragma Export (C, u00183, "system__concat_4S");
+   u00180 : constant Version_32 := 16#932a4690#;
+   pragma Export (C, u00180, "system__concat_4B");
+   u00181 : constant Version_32 := 16#4cc4aa18#;
+   pragma Export (C, u00181, "system__concat_4S");
+   u00182 : constant Version_32 := 16#608e2cd1#;
+   pragma Export (C, u00182, "system__concat_5B");
+   u00183 : constant Version_32 := 16#b5fec216#;
+   pragma Export (C, u00183, "system__concat_5S");
    u00184 : constant Version_32 := 16#a83b7c85#;
    pragma Export (C, u00184, "system__concat_6B");
    u00185 : constant Version_32 := 16#e067ac8a#;

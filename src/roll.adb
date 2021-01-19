@@ -1,14 +1,20 @@
 with Ada.Text_IO;
 with Ada.Numerics.Discrete_Random;
 with Ada.Strings.Unbounded;
+use Ada.Strings.Unbounded;
 with Player_Operations;
 use Player_Operations;
 use Ada.Text_IO;
 
--- narazie wszystko w jednym pliku :(
--- wersja uproszczona: jest 4 Playerów, 4 możliwe akcje, a każdy Player w turze losowo dostaje kafelek
--- jeżeli któryś Player otrzyma 3 kafelki, to gra się kończy (nie rozpatruję kto wygrał)
 procedure Roll is
+
+    -- nagłówki (semafory)
+   protected Sack_Semafor is
+      entry Wait;
+      procedure Signal;
+   private
+      Sem : Boolean := True;
+   end Sack_Semafor;
 
    protected Init_Semafor is
       entry Wait;
@@ -17,7 +23,6 @@ procedure Roll is
       Sem : Boolean := True;
    end Init_Semafor;
 
-  -- nagłówki (semafory)
   -- każdy Player ma swój semafor S; dzięki niemu czeka ze swoją turą, aż Game ustali akcje na podstawie rzutów
   protected type S is
     entry Wait; -- to będzie wywoływać Player (zajmij zasób Sem)
@@ -41,6 +46,18 @@ procedure Roll is
 
   task type Player(P : Positive); -- każdy Player ma swój identyfikator P (żeby wiadomo było, kto wygrał)
 
+   -- ciała (semafory)
+   protected body Sack_Semafor is
+      entry Wait when Sem is
+      begin
+         Sem := False;
+      end Wait;
+      procedure Signal is
+      begin
+         Sem := True;
+      end Signal;
+   end Sack_Semafor;
+
    protected body Init_Semafor is
       entry Wait when Sem is
       begin
@@ -52,7 +69,6 @@ procedure Roll is
       end Signal;
    end Init_Semafor;
 
-  -- ciała (semafory)
   protected body S is
     entry Wait when Sem = False is -- zajęcie zasobu przez Playera
     begin
@@ -93,6 +109,9 @@ procedure Roll is
             -- Player daje znać, którą akcję aktywował i czy zebrał 3 Tiles
             accept Sync(PickedAction : in Positive; Finish : in Boolean) do
                Put_Line("G) Dostałem info od gracza (wybrana akcja: " & PickedAction'Img & ").");
+               if Ready = 0 then
+                  ActivatedActions := (False, False, False, False);
+               end if;
                ActivatedActions(PickedAction) := True;
                Ready := Ready + 1;
 
@@ -102,10 +121,11 @@ procedure Roll is
                end if;
 
                if Ready = 4 then
-                  Put_Line("G) Wszyscy gracze rzucili kośćmi i wybrali akcję.");
+                  --Put_Line("G) Wszyscy gracze rzucili kośćmi i wybrali akcję.");
+                  Put_Line("Aktywowane akcje: " & To_String(activated_to_string(ActivatedActions)));
                   Ready := 0;
                   for I in 1 .. 4 loop
-                     Put_Line("G) Pozwalam grać graczowi" & I'Img & ".");
+                     --Put_Line("G) Pozwalam grać graczowi" & I'Img & ".");
                      Sems(I).Signal; -- pozwól graczom wykonać swoje tury
                   end loop;
 
@@ -128,57 +148,83 @@ procedure Roll is
    end Game;
 
    task body Player is -- Playerzy o numerach 1 - 4
-      package Bool_Random is new Ada.Numerics.Discrete_Random(Boolean); -- narazie Player losowo dostaje kafelek
-      use Bool_Random;
 
-      -- w każdej rundzie gracz losowo dostaje kafelki (na początek ma 1), jak ma 3, to koniec gry
       Money            : Credits := 1;
-      Tiles            : Natural := 0;
-      --Roll_Output      : Dice_Array(0..9);
-      Population       : Dices(0..9) := (0|1 => White, others => D_Null);
-      Cup              : Dices(0..9) := (0|1|2 => White, others => D_Null);
-      Planets          : Planet_Array(0..13);
-      Planet_Queue     : Planet_Array(0..13);
+      Tiles            : Positive := 2;
+      Roll_Output      : Dice_Array(0..14);
+      Population       : Dices(0..14) := (0|1 => White, others => D_Null);
+      Cup              : Dices(0..14) := (0|1|2|3 => White, others => D_Null);
+      Planets          : Planet_Array(0..11);
+      Planet_Queue     : Planet_Array(0..4);
+      Settlers         : Dices(0..5) := (others => D_Null);
+      Points           : Integer := 0;
       ActivatedActions : Activated := (False, False, False, False);
       Finished         : Boolean := False;
-      G                : Generator;
       PickedAction     : Positive := P; -- narazie gracz po prostu zawsze wybiera akcję o swoim numerze (P)
 
    begin
-      Reset(G);
       Put_Line("P" & P'Img & ") Rozpoczynam działanie.");
 
       Init_Semafor.Wait;
-      get_initial_planets(Planets, Planet_Queue);
+      get_initial_planets(Planets, Planet_Queue, Money, Population, Cup);
       Init_Semafor.Signal;
 
-      Put_Line("P" & P'Img & ") Początkowe planety: " & Ada.Strings.Unbounded.To_String(Planets(0).Name) & Ada.Strings.Unbounded.To_String(Planets(1).Name));
-      --Put_Line(Ada.Strings.Unbounded.To_String(Planets(0).Name));
+      Put_Line("P" & P'Img & ") Początkowe planety: " & To_String(Planets(0).Name) & "; " & To_String(Planets(1).Name));
 
       loop
          -- rzut kośćmi i wybór akcji
-         Put_Line("P" & P'Img & ") Wyrzuciłem kości i wybrałem akcję.");
+         roll_dices(Cup, Roll_Output);
+         Put_Line("P" & P'Img & ") Rzucilem kosci.");
+         PickedAction := pick_action(Roll_Output);
+         Put_Line("P" & P'Img & ") " & To_String(dices_to_string(Roll_Output)) & " Picked = " & PickedAction'Img);
+
+         jokers_to_picked_action(Roll_Output, PickedAction);
 
          Game.Sync(PickedAction, Finished); -- przekaż wybraną akcję
          Sems(P).Wait; -- zawieś się, aż Game nie zwróci ostatecznie aktywowanych akcji i nie pozwoli grać dalej
 
          if F.Get then -- warunek końca został aktywowany
-            Put_Line("P" & P'Img & ") Koniec gry, do widzenia!.");
+            Put_Line("P" & P'Img & ") Koniec gry. Mam " & points_total(Planets, Points)'Img & " punktów");
             exit;
          end if;
 
          Game.Get(ActivatedActions); -- pobierz akcje wybrane dla tej rundy
 
          -- wykonanie akcji
-         Put_Line("P" & P'Img & ") Wiem, jakie są akcje. Wykonuję swoją turę.");
 
-         if Random(G) then -- gracz losowo dostaje kafelek w każdej turze
-            Tiles := Tiles + 1;
-            Put_Line("P" & P'Img & ") Dostałem kafelek" & "(" & Tiles'Img & " / 3).");
+         if ActivatedActions(1) then
+            Sack_Semafor.Wait;
+            Put_Line("P" & P'Img & ") Eksploruje.");
+            explore(Roll_Output, Planet_Queue, Money, Population);
+            Put_Line("P" & P'Img & ") Skonczylem eksploracje.");
+            Sack_Semafor.Signal;
          end if;
 
-         if Tiles = 3 then -- jeżeli wybudowane już 3 kafelki, to zgłoś koniec
-            Put_Line("P" & P'Img & ") Mam 3 kafelki i przy Sync() będę sygnalizował koniec.");
+         if ActivatedActions(2) then
+            Put_Line("P" & P'Img & ") Osiedlam. Mialem planet: " & Tiles'Img);
+            settle(Roll_Output, Planet_Queue, Planets, Population, Settlers, Cup, Tiles, Money);
+            Put_Line("P" & P'Img & ") Osiedlilem. Mam planet: " & Tiles'Img);
+         end if;
+
+         if ActivatedActions(3) then
+            Put_Line("P" & P'Img & ") Produkuje dobra");
+            produce(Roll_Output, Planets, Cup);
+            Put_Line("P" & P'Img & ") Skonczylem produkowac");
+         end if;
+
+         if ActivatedActions(4) then
+            Put_Line("P" & P'Img & ") Dostarczam dobra");
+            deliver(Roll_Output, Planets, Points, Population, Cup);
+            Put_Line("P" & P'Img & ") Skonczylem dostarczac dobra");
+         end if;
+
+         unused_dices_to_cup(Roll_Output, Cup);
+         Put_Line("P" & P'Img & ") Przenioslem nieuzyte kosci do kubka");
+         buy_dices(Population, Cup, Money);
+         Put_Line("P" & P'Img & ") Kupilem kosci");
+
+         if Tiles >= 7 then -- jeżeli wybudowano 7 planet, to zgłoś koniec
+            Put_Line("P" & P'Img & ") Mam  7 planet i przy Sync() będę sygnalizował koniec.");
             Finished := True;
          end if;
 
@@ -190,8 +236,7 @@ P1 : Player(1);
 P2 : Player(2);
 P3 : Player(3);
 P4 : Player(4);
-
 begin
-  Put_Line("POCZĄTEK PROCEDURY GŁÓWNEJ.");
-  Put_Line("KONIEC PROCEDURY GŁÓWNEJ.");
+   Put_Line("POCZĄTEK PROCEDURY GŁÓWNEJ.");
+   Put_Line("KONIEC PROCEDURY GŁÓWNEJ.");
 end Roll;
