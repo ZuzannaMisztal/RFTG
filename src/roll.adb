@@ -160,7 +160,7 @@ procedure Roll is
       Points           : Integer := 0;
       ActivatedActions : Activated := (False, False, False, False);
       Finished         : Boolean := False;
-      PickedAction     : Positive := P; -- narazie gracz po prostu zawsze wybiera akcję o swoim numerze (P)
+      PickedAction     : Positive;
 
    begin
       Put_Line("P" & P'Img & ") Rozpoczynam działanie.");
@@ -179,12 +179,14 @@ procedure Roll is
          Put_Line("P" & P'Img & ") " & To_String(dices_to_string(Roll_Output)) & " Picked = " & PickedAction'Img);
 
          jokers_to_picked_action(Roll_Output, PickedAction);
+         Put_Line("P" & P'Img & ") Przydzielilem jokery do aktywowanej przeze mnie akcji.");
+         --Put_Line("P" & P'Img & ") " & To_String(dices_to_string(Roll_Output)));
 
          Game.Sync(PickedAction, Finished); -- przekaż wybraną akcję
          Sems(P).Wait; -- zawieś się, aż Game nie zwróci ostatecznie aktywowanych akcji i nie pozwoli grać dalej
 
          if F.Get then -- warunek końca został aktywowany
-            Put_Line("P" & P'Img & ") Koniec gry. Mam " & points_total(Planets, Points)'Img & " punktów");
+            Put_Line("P" & P'Img & ") Koniec gry. Mam " & points_total(Planets, Points)'Img & " pkt");
             exit;
          end if;
 

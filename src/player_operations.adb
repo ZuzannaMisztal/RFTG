@@ -259,9 +259,11 @@ package body Player_Operations is
          end if;
       end loop;
       
+      Put_Line("Number of settlers already = " & num_of_settlers_already'Img);
       while num + num_of_settlers_already >= Planet_Queue(0).Value loop
          if Planet_Queue(0).Value = -1 then --to oznacza, ze nie ma zadnych planet w kolejce
             unused_settlers_to_cup(Roll_Output, Cup);
+            Put_Line("Nie ma planet w kolejce");
             exit;
          end if;
          num_needed := Planet_Queue(0).Value - num_of_settlers_already;
@@ -280,6 +282,7 @@ package body Player_Operations is
                end if;
             end loop;
          end if;
+         Put_Line("Przenioslem settlers do populacji");
          
          for I in 1..num_needed loop
          --znajdz odpowiednia kostke
@@ -298,13 +301,14 @@ package body Player_Operations is
             end loop;
          end loop;
          num := num - num_needed;
-         
+         Put_Line("Przenioslem odopowiednia liczbe kostek z akcja sett do populacji");
          --przenies planete z kolejki do zdobytych planet
          collect_from_planet(Planet_Queue(0), Money, Population, Cup);
          Planets(Tiles) := Planet_Queue(0);
          new_planet_queue(0..3) := Planet_Queue(1..4);
          Tiles := Tiles + 1;
          Planet_Queue := new_planet_queue;
+         Put_Line("Osiedlilem planete");
       end loop;
       
       --przenies pozostale kostki z akcja sett do Settlers
@@ -317,6 +321,7 @@ package body Player_Operations is
             end if;
          end loop;
       end loop;
+      Put_Line("Przenioslem pozostale kostki do settlers");
    end settle;
    
    procedure unused_settlers_to_cup(Roll_Output: in out Dice_Array; Cup: in out Dices) is
