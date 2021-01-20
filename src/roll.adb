@@ -204,8 +204,8 @@ procedure Roll is
 
          if ActivatedActions(2) then
             Put_Line("P" & P'Img & ") Osiedlam. Mialem planet: " & Tiles'Img);
-            settle(Roll_Output, Planet_Queue, Planets, Population, Settlers, Cup, Tiles, Money);
-            Put_Line("P" & P'Img & ") Osiedlilem. Mam planet: " & Tiles'Img);
+            settle(Roll_Output, Planet_Queue, Planets, Population, Settlers, Cup, Tiles, Money, P);
+            Put_Line("P" & P'Img & ") Skonczylem osiedlac. Mam planet: " & Tiles'Img);
          end if;
 
          if ActivatedActions(3) then

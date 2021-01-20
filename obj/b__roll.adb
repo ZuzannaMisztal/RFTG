@@ -36,10 +36,10 @@ package body ada_main is
    E145 : Short_Integer; pragma Import (Ada, E145, "system__storage_pools__subpools_E");
    E131 : Short_Integer; pragma Import (Ada, E131, "ada__strings__unbounded_E");
    E119 : Short_Integer; pragma Import (Ada, E119, "system__task_info_E");
-   E177 : Short_Integer; pragma Import (Ada, E177, "ada__calendar_E");
+   E179 : Short_Integer; pragma Import (Ada, E179, "ada__calendar_E");
    E098 : Short_Integer; pragma Import (Ada, E098, "ada__real_time_E");
    E164 : Short_Integer; pragma Import (Ada, E164, "ada__text_io_E");
-   E175 : Short_Integer; pragma Import (Ada, E175, "system__random_seed_E");
+   E177 : Short_Integer; pragma Import (Ada, E177, "system__random_seed_E");
    E197 : Short_Integer; pragma Import (Ada, E197, "system__tasking__initialization_E");
    E187 : Short_Integer; pragma Import (Ada, E187, "system__tasking__protected_objects_E");
    E193 : Short_Integer; pragma Import (Ada, E193, "system__tasking__protected_objects__entries_E");
@@ -289,7 +289,7 @@ package body ada_main is
       E119 := E119 + 1;
       Ada.Calendar'Elab_Spec;
       Ada.Calendar'Elab_Body;
-      E177 := E177 + 1;
+      E179 := E179 + 1;
       Ada.Real_Time'Elab_Spec;
       Ada.Real_Time'Elab_Body;
       E098 := E098 + 1;
@@ -297,7 +297,7 @@ package body ada_main is
       Ada.Text_Io'Elab_Body;
       E164 := E164 + 1;
       System.Random_Seed'Elab_Body;
-      E175 := E175 + 1;
+      E177 := E177 + 1;
       System.Tasking.Initialization'Elab_Body;
       E197 := E197 + 1;
       System.Tasking.Protected_Objects'Elab_Body;

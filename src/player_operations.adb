@@ -246,7 +246,7 @@ package body Player_Operations is
    end explore;
 
    procedure settle(Roll_Output: in out Dice_Array; Planet_Queue: in out Planet_Array; Planets: in out Planet_Array; Population: in out Dices;
-                    Settlers: in out Dices; Cup: in out Dices; Tiles: in out Positive; Money: in out Credits) is
+                    Settlers: in out Dices; Cup: in out Dices; Tiles: in out Positive; Money: in out Credits; P: in Positive) is
       num                     : Integer;
       num_of_settlers_already : Integer := 0;
       num_needed              : Integer;
@@ -259,11 +259,11 @@ package body Player_Operations is
          end if;
       end loop;
       
-      Put_Line("Number of settlers already = " & num_of_settlers_already'Img);
+      Put_Line("P" & P'Img & ") Number of settlers already = " & num_of_settlers_already'Img);
       while num + num_of_settlers_already >= Planet_Queue(0).Value loop
          if Planet_Queue(0).Value = -1 then --to oznacza, ze nie ma zadnych planet w kolejce
             unused_settlers_to_cup(Roll_Output, Cup);
-            Put_Line("Nie ma planet w kolejce");
+            Put_Line("P" & P'Img & ") Nie ma planet w kolejce");
             exit;
          end if;
          num_needed := Planet_Queue(0).Value - num_of_settlers_already;
@@ -282,7 +282,7 @@ package body Player_Operations is
                end if;
             end loop;
          end if;
-         Put_Line("Przenioslem settlers do populacji");
+         Put_Line("P" & P'Img & ") Przenioslem settlers do populacji");
          
          for I in 1..num_needed loop
          --znajdz odpowiednia kostke
@@ -301,27 +301,29 @@ package body Player_Operations is
             end loop;
          end loop;
          num := num - num_needed;
-         Put_Line("Przenioslem odopowiednia liczbe kostek z akcja sett do populacji");
+         Put_Line("P" & P'Img & ") Przenioslem odopowiednia liczbe kostek z akcja sett do populacji");
          --przenies planete z kolejki do zdobytych planet
          collect_from_planet(Planet_Queue(0), Money, Population, Cup);
          Planets(Tiles) := Planet_Queue(0);
          new_planet_queue(0..3) := Planet_Queue(1..4);
          Tiles := Tiles + 1;
          Planet_Queue := new_planet_queue;
-         Put_Line("Osiedlilem planete");
+         Put_Line("P" & P'Img & ") Osiedlilem planete");
       end loop;
       
       --przenies pozostale kostki z akcja sett do Settlers
-      for I in 1..num loop
-         for J in Roll_Output'Range loop
-            if Roll_Output(J).Color /= D_Null and Roll_Output(J).Outcome = Sett then
-               Settlers(I-1) := Roll_Output(J).Color; 
-               Roll_Output(J).Color := D_Null;
-               exit;
-            end if;
+      if Planet_Queue(0).Value > -1 then
+         for I in 1..num loop
+            for J in Roll_Output'Range loop
+               if Roll_Output(J).Color /= D_Null and Roll_Output(J).Outcome = Sett then
+                  Settlers(I-1) := Roll_Output(J).Color; 
+                  Roll_Output(J).Color := D_Null;
+                  exit;
+               end if;
+            end loop;
          end loop;
-      end loop;
-      Put_Line("Przenioslem pozostale kostki do settlers");
+      end if;
+      Put_Line("P" & P'Img & ") Przenioslem pozostale kostki do settlers");
    end settle;
    
    procedure unused_settlers_to_cup(Roll_Output: in out Dice_Array; Cup: in out Dices) is

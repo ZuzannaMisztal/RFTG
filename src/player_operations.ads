@@ -48,7 +48,7 @@ package Player_Operations is
    procedure explore(Roll_Output: in out Dice_Array; Planet_Queue: in out Planet_Array; Money: in out Credits; Population: in out Dices);
    
    procedure settle(Roll_Output: in out Dice_Array; Planet_Queue: in out Planet_Array; Planets: in out Planet_Array; Population: in out Dices;
-                    Settlers: in out Dices; Cup: in out Dices; Tiles: in out Positive; Money: in out Credits);
+                    Settlers: in out Dices; Cup: in out Dices; Tiles: in out Positive; Money: in out Credits; P: in Positive);
    
    procedure unused_settlers_to_cup(Roll_Output: in out Dice_Array; Cup: in out Dices);
    
