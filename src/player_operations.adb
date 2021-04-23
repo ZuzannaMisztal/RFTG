@@ -3,160 +3,165 @@ with Ada.Text_IO;
 use Ada.Text_IO;
 
 package body Player_Operations is
-   
+
    package Roll is new Ada.Numerics.Discrete_Random(Dice_Side);
    package Random_Index is new Ada.Numerics.Discrete_Random(Integer);
-   
-   Planet_Sack: Planet_Array(0..47);
-   Sack_Availability: Availability_Array(0..47) := (others => True);
-   Initial_Planets: Planet_Array(0..15);
-   Init_Availability: Availability_Array(0..15) := (others => True);
-   
-  
-   procedure get_initial_planets(Planets: out Planet_Array; Planet_Queue: out Planet_Array;
-                                Money: in out Credits; Population: in out Dices; Cup: in out Dices) is
-      gen: Random_Index.Generator;
-      ind: Integer;
-   begin
-      Random_Index.Reset(gen);
-      for I in 0..1 loop
-         ind := Random_Index.Random(gen) mod 16;
-         while Init_Availability(ind) = False loop
-            ind := Random_Index.Random(gen) mod 16;
-         end loop;
-         Init_Availability(ind) := False;
-         Planets(I) := Initial_Planets(ind);
-         collect_from_planet(Initial_Planets(ind), Money, Population, Cup);
-      end loop;
-      
-      ind := Random_Index.Random(gen) mod 48;
-      while Sack_Availability(ind) = False loop
-         ind := Random_Index.Random(gen) mod 48;
-      end loop;
-      Sack_Availability(ind) := False;
-      Planet_Queue(0) := Planet_Sack(ind);
-   end get_initial_planets;
 
-   procedure collect_from_planet(A_Planet: in Planet; Money: in out Credits; Population: in out Dices; Cup: in out Dices) is
+   Planet_Sack: Planet_Array(0 .. 47);
+   Sack_Availability: Availability_Array(0 .. 47) := (others => True);
+   Initial_Planets: Planet_Array(0 .. 15);
+   Init_Availability: Availability_Array(0 .. 15) := (others => True);
+
+   procedure Get_Initial_Planets(Planets: out Planet_Array; Planet_Queue: out Planet_Array;
+                                Money: in out Credits; Population: in out Dices; Cup: in out Dices) is
+      Gen: Random_Index.Generator;
+      Ind: Integer;
+   begin
+      Random_Index.Reset(Gen);
+
+      for I in 0..1 loop
+         Ind := Random_Index.Random(Gen) mod 16;
+         while Init_Availability(Ind) = False loop
+            Ind := Random_Index.Random(Gen) mod 16;
+         end loop;
+
+         Init_Availability(Ind) := False;
+         Planets(I) := Initial_Planets(Ind);
+         Collect_From_Planet(Initial_Planets(Ind), Money, Population, Cup);
+      end loop;
+
+      Ind := Random_Index.Random(Gen) mod 48;
+
+      while Sack_Availability(Ind) = False loop
+         Ind := Random_Index.Random(Gen) mod 48;
+      end loop;
+
+      Sack_Availability(Ind) := False;
+      Planet_Queue(0) := Planet_Sack(Ind);
+   end Get_Initial_Planets;
+
+   procedure Collect_From_Planet(A_Planet: in Planet; Money: in out Credits; Population: in out Dices; Cup: in out Dices) is
    begin
       Money := Money + A_Planet.Money; -- tutaj moze byc problem jak przekroczy 10
-      
-      if A_Planet.Pop_add /= D_Null then
+
+      if A_Planet.Pop_Add /= D_Null then
          for I in Population'Range loop
             if Population(I) = D_Null then
-               Population(I) := A_Planet.Pop_add;
+               Population(I) := A_Planet.Pop_Add;
                exit;
             end if;
          end loop;
       end if;
-      
-      if A_Planet.Cup_add /= D_Null then
+
+      if A_Planet.Cup_Add /= D_Null then
          for I in Cup'Range loop
             if Cup(I) = D_Null then
-               Cup(I) := A_Planet.Cup_add;
+               Cup(I) := A_Planet.Cup_Add;
                exit;
             end if;
          end loop;
       end if;
-   end collect_from_planet;
-   
-   procedure roll_dices(Cup: in Dices; Roll_Output: out Dice_Array) is
+   end Collect_From_Planet;
+
+   procedure Roll_Dices(Cup: in Dices; Roll_Output: out Dice_Array) is
       Dice_Output: Dice;
    begin
       for I in Cup'Range loop
          if Cup(I) /= D_Null then
             Dice_Output.Color := Cup(I);
-            Dice_Output.Outcome := roll_dice(Cup(I));
+            Dice_Output.Outcome := Roll_Dice(Cup(I));
             Roll_Output(I) := Dice_Output;
          end if;
       end loop;
-   end roll_dices;      
-        
-   function roll_dice(Color: in Dice_Color) return Action is
-      result : Dice_Side;
-      gen    : Roll.Generator;
+   end Roll_Dices;
+
+   function Roll_Dice(Color: in Dice_Color) return Action is
+      Result : Dice_Side;
+      Gen    : Roll.Generator;
    begin
-      Roll.Reset(gen);
-      result := Roll.Random(gen);
-      if color = White then
-         if result = 1 or result = 2 then return Exp;
-         elsif result = 3 then return roll_dice(Color);
-         elsif result = 4 then return Sett;
-         elsif result = 5 then return Prod;
+      Roll.Reset(Gen);
+      Result := Roll.Random(Gen);
+
+      if Color = White then
+         if Result = 1 or Result = 2 then return Exp;
+         elsif Result = 3 then return Roll_Dice(Color);
+         elsif Result = 4 then return Sett;
+         elsif Result = 5 then return Prod;
          else return Ship;
          end if;
-      elsif color = Red then
-         if result = 1 then return Exp;
-         elsif result = 2 or result = 3 then return roll_dice(Color);
-         elsif result = 4 or result = 5 then return Sett;
+      elsif Color = Red then
+         if Result = 1 then return Exp;
+         elsif Result = 2 or Result = 3 then return Roll_Dice(Color);
+         elsif Result = 4 or Result = 5 then return Sett;
          else return Joker;
          end if;
-      elsif color = Purple then
-         if result = 1 then return Exp;
-         elsif result = 2 then return roll_dice(Color);
-         elsif result = 3 or result = 4 or result = 5 then return Ship;
+      elsif Color = Purple then
+         if Result = 1 then return Exp;
+         elsif Result = 2 then return Roll_Dice(Color);
+         elsif Result = 3 or Result = 4 or Result = 5 then return Ship;
          else return Joker;
          end if;
-      elsif color = Blue then
-         if result = 1 then return Exp;
-         elsif result = 2 or result = 3 then return Prod;
-         elsif result = 4 or result = 5 then return Ship;
+      elsif Color = Blue then
+         if Result = 1 then return Exp;
+         elsif Result = 2 or Result = 3 then return Prod;
+         elsif Result = 4 or Result = 5 then return Ship;
          else return Joker;
          end if;
-      elsif color = Brown then
-         if result = 1 then return Exp;
-         elsif result = 2 or result = 3 then return roll_dice(Color);
-         elsif result = 4 then return Prod;
-         elsif result = 5 then return Ship;
+      elsif Color = Brown then
+         if Result = 1 then return Exp;
+         elsif Result = 2 or Result = 3 then return Roll_Dice(Color);
+         elsif Result = 4 then return Prod;
+         elsif Result = 5 then return Ship;
          else return Joker;
          end if;
-      elsif color = Green then
-         if result = 1 then return Exp;
-         elsif result = 2 or result = 3 then return Sett;
-         elsif result = 4 then return Prod;
+      elsif Color = Green then
+         if Result = 1 then return Exp;
+         elsif Result = 2 or Result = 3 then return Sett;
+         elsif Result = 4 then return Prod;
          else return Joker;
          end if;
       else
-         if result = 1 then return roll_dice(Color);
-         elsif result = 2 then return Sett;
-         elsif result = 3 then return Prod;
+         if Result = 1 then return Roll_Dice(Color);
+         elsif Result = 2 then return Sett;
+         elsif Result = 3 then return Prod;
          else return Joker;
          end if;
       end if;
-   end roll_dice;
 
-   function dices_to_string(Roll_Output: in Dice_Array) return Unbounded_String is
-      result: Unbounded_String := To_Unbounded_String("");
+   end Roll_Dice;
+
+   function Dices_To_String(Roll_Output: in Dice_Array) return Unbounded_String is
+      Result: Unbounded_String := To_Unbounded_String("");
    begin
       for I in Roll_Output'Range loop
          if Roll_Output(I).Color /= D_Null then
-            result := result & Roll_Output(I).Color'Img & ": " & Roll_Output(I).Outcome'Img & "| ";
+            Result := Result & Roll_Output(I).Color'Img & ": " & Roll_Output(I).Outcome'Img & "| ";
          end if;
       end loop;
-      return result;
-   end dices_to_string;
-   
-   function number_of_occurences(Roll_Output: in Dice_Array; An_Action: in Action) return Integer is
-      result: Integer := 0;
+      return Result;
+   end Dices_To_String;
+
+   function Number_Of_Occurences(Roll_Output: in Dice_Array; An_Action: in Action) return Integer is
+      Result: Integer := 0;
    begin
       for I in Roll_Output'Range loop
          if Roll_Output(I).Color /= D_Null and Roll_Output(I).Outcome = An_Action then
-            result := result + 1;
+            Result := Result + 1;
          end if;
       end loop;
-      return result;
-   end number_of_occurences;
-   
-   function pick_action(Roll_Output: in Dice_Array) return Integer is
+      return Result;
+   end Number_Of_Occurences;
+
+   function Pick_Action(Roll_Output: in Dice_Array) return Integer is
       Exp_Num: Integer;
       Sett_Num: Integer;
       Prod_Num: Integer;
       Ship_Num: Integer;
    begin
-      Exp_Num := number_of_occurences(Roll_Output, Exp);
-      Sett_Num := number_of_occurences(Roll_Output, Sett);
-      Prod_Num := number_of_occurences(Roll_Output, Prod);
-      Ship_Num := number_of_occurences(Roll_Output, Ship);
+      Exp_Num := Number_Of_Occurences(Roll_Output, Exp);
+      Sett_Num := Number_Of_Occurences(Roll_Output, Sett);
+      Prod_Num := Number_Of_Occurences(Roll_Output, Prod);
+      Ship_Num := Number_Of_Occurences(Roll_Output, Ship);
       if Sett_Num >= Exp_Num and Sett_Num >= Prod_Num and Sett_Num >= Ship_Num then
          return 2;
       elsif Prod_Num >= Exp_Num and Prod_Num >= Ship_Num then
@@ -166,50 +171,50 @@ package body Player_Operations is
       else
          return 1;
       end if;
-   end pick_action;
-   
-   procedure jokers_to_picked_action(Roll_Output: in out Dice_Array; PickedAction: in Integer) is
+   end Pick_Action;
+
+   procedure Jokers_To_Picked_Action(Roll_Output: in out Dice_Array; Picked_Action: in Integer; P : in Positive) is
    begin
       for I in Roll_Output'Range loop
-         if Roll_Output(I).Outcome = Joker then
-            if PickedAction = 1 then
+         if Roll_Output(I).Outcome = Joker and Roll_Output(I).Color /= D_Null then
+            if Picked_Action = 1 then
                Roll_Output(I).Outcome := Exp;
-            elsif PickedAction = 2 then
+            elsif Picked_Action = 2 then
                Roll_Output(I).Outcome := Sett;
-            elsif PickedAction = 3 then
+            elsif Picked_Action = 3 then
                Roll_Output(I).Outcome := Prod;
             else
                Roll_Output(I).Outcome := Ship;
             end if;
          end if;
       end loop;
-   end jokers_to_picked_action;
-   
-   procedure explore(Roll_Output: in out Dice_Array; Planet_Queue: in out Planet_Array; Money: in out Credits; Population: in out Dices) is
-      num          : Integer;
-      times_stock  : Integer;
-      times_scout  : Integer;
-      gen          : Random_Index.Generator;
-      ind          : Integer;
-      ind_queue    : Integer := 0;
-      
+   end Jokers_To_Picked_Action;
+
+   procedure Explore(Roll_Output: in out Dice_Array; Planet_Queue: in out Planet_Array; Money: in out Credits; Population: in out Dices) is
+      Num          : Integer;
+      Times_Stock  : Integer;
+      Times_Scout  : Integer;
+      Gen          : Random_Index.Generator;
+      Ind          : Integer;
+      Ind_Queue    : Integer := 0;
+
    begin
-      num := number_of_occurences(Roll_Output, Exp);
-      times_stock := num / 2;
-      times_scout := num - times_stock;
-      
-      while ind_queue <= 4 and then Planet_Queue(ind_queue).Value > -1 loop
-         ind_queue := ind_queue + 1;
+      Num := Number_Of_Occurences(Roll_Output, Exp);
+      Times_Stock := Num / 2;
+      Times_Scout := Num - Times_Stock;
+
+      while Ind_Queue <= 4 and then Planet_Queue(Ind_Queue).Value > -1 loop
+         Ind_Queue := Ind_Queue + 1;
       end loop;
       --Put_Line("Znalezlem pierwsze puste miejsce w planet_queue");
-      
+
       --jesli planety nie zmieszcza sie w planet_queue przydziel pozostale kostki do magazynowania
-      if times_scout > 5 - ind_queue then
-         times_stock := times_stock + times_scout + ind_queue - 5;
-         times_scout := 5 - ind_queue;
+      if Times_Scout > 5 - Ind_Queue then
+         Times_Stock := Times_Stock + Times_Scout + Ind_Queue - 5;
+         Times_Scout := 5 - Ind_Queue;
       end if;
-      
-      for I in 1..num loop
+
+      for I in 1..Num loop
          --znajdz odpowiednia kostke
          for J in Roll_Output'Range loop
             if Roll_Output(J).Color /= D_Null and Roll_Output(J).Outcome = Exp then
@@ -226,65 +231,62 @@ package body Player_Operations is
          end loop;
       end loop;
       --Put_Line("Przenioslem kostki do populacji");
-      
-      for I in 1..times_stock loop
+
+      for I in 1..Times_Stock loop
          Money := Money + 2;
       end loop;
       --Put_Line("Zmagazynowalem");
-      
-      for I in 1..times_scout loop
-         ind := Random_Index.Random(gen) mod 48;
-         while Sack_Availability(ind) = False loop
-            ind := Random_Index.Random(gen) mod 48;
+
+      for I in 1..Times_Scout loop
+         Ind := Random_Index.Random(Gen) mod 48;
+         while Sack_Availability(Ind) = False loop
+            Ind := Random_Index.Random(Gen) mod 48;
          end loop;
-         --Put_Line("Wylosowalem planete " & I'Img & "/" & times_scout'Img);
-         Sack_Availability(ind) := False;
-         Planet_Queue(ind_queue) := Planet_Sack(ind);
-         ind_queue := ind_queue + 1;
+         --Put_Line("Wylosowalem planete " & I'Img & "/" & Times_Scout'Img);
+         Sack_Availability(Ind) := False;
+         Planet_Queue(Ind_Queue) := Planet_Sack(Ind);
+         Ind_Queue := Ind_Queue + 1;
       end loop;
       --Put_Line("Zebralem nowe planety do planet_queue");
-   end explore;
+   end Explore;
 
-   procedure settle(Roll_Output: in out Dice_Array; Planet_Queue: in out Planet_Array; Planets: in out Planet_Array; Population: in out Dices;
+   procedure Settle(Roll_Output: in out Dice_Array; Planet_Queue: in out Planet_Array; Planets: in out Planet_Array; Population: in out Dices;
                     Settlers: in out Dices; Cup: in out Dices; Tiles: in out Positive; Money: in out Credits; P: in Positive) is
-      num                     : Integer;
-      num_of_settlers_already : Integer := 0;
-      num_needed              : Integer;
-      new_planet_queue        : Planet_Array(0..4); 
+      Num                     : Integer;
+      Num_Of_Settlers_Already : Integer := 0;
+      Num_Needed              : Integer;
+      New_Planet_Queue        : Planet_Array(0..4);
    begin
-      num := number_of_occurences(Roll_Output, Sett);
+      Num := Number_Of_Occurences(Roll_Output, Sett);
       for I in Settlers'Range loop
          if Settlers(I) /= D_Null then
-            num_of_settlers_already := num_of_settlers_already + 1;
+            Num_Of_Settlers_Already := Num_Of_Settlers_Already + 1;
          end if;
       end loop;
-      
-      Put_Line("P" & P'Img & ") Number of settlers already = " & num_of_settlers_already'Img);
-      while num + num_of_settlers_already >= Planet_Queue(0).Value loop
+
+      while Num + Num_Of_Settlers_Already >= Planet_Queue(0).Value loop
          if Planet_Queue(0).Value = -1 then --to oznacza, ze nie ma zadnych planet w kolejce
-            unused_settlers_to_cup(Roll_Output, Cup);
-            Put_Line("P" & P'Img & ") Nie ma planet w kolejce");
+            Unused_Settlers_To_Cup(Roll_Output, Cup);
             exit;
          end if;
-         num_needed := Planet_Queue(0).Value - num_of_settlers_already;
-         --przenies settlers i odpowiednia liczbe kostek z roll_output do populacji
-         if num_of_settlers_already > 0 then
+         Num_Needed := Planet_Queue(0).Value - Num_Of_Settlers_Already;
+         --przenies Settlers i odpowiednia liczbe kostek z roll_output do populacji
+         if Num_Of_Settlers_Already > 0 then
             for I in Settlers'Range loop
                if Settlers(I) /= D_Null then
                   for J in Population'Range loop
                      if Population(J) = D_Null then
                         Population(J) := Settlers(I);
                         Settlers(I) := D_Null;
-                        num_of_settlers_already := num_of_settlers_already - 1;
+                        Num_Of_Settlers_Already := Num_Of_Settlers_Already - 1;
                         exit;
                      end if;
                   end loop;
                end if;
             end loop;
          end if;
-         Put_Line("P" & P'Img & ") Przenioslem settlers do populacji");
-         
-         for I in 1..num_needed loop
+
+         for I in 1..Num_Needed loop
          --znajdz odpowiednia kostke
             for J in Roll_Output'Range loop
                if Roll_Output(J).Color /= D_Null and Roll_Output(J).Outcome = Sett then
@@ -300,33 +302,30 @@ package body Player_Operations is
                end if;
             end loop;
          end loop;
-         num := num - num_needed;
-         Put_Line("P" & P'Img & ") Przenioslem odopowiednia liczbe kostek z akcja sett do populacji");
+         Num := Num - Num_Needed;
          --przenies planete z kolejki do zdobytych planet
          collect_from_planet(Planet_Queue(0), Money, Population, Cup);
          Planets(Tiles) := Planet_Queue(0);
-         new_planet_queue(0..3) := Planet_Queue(1..4);
+         New_Planet_Queue(0..3) := Planet_Queue(1..4);
          Tiles := Tiles + 1;
-         Planet_Queue := new_planet_queue;
-         Put_Line("P" & P'Img & ") Osiedlilem planete");
+         Planet_Queue := New_Planet_Queue;
       end loop;
-      
+
       --przenies pozostale kostki z akcja sett do Settlers
       if Planet_Queue(0).Value > -1 then
-         for I in 1..num loop
+         for I in 1..Num loop
             for J in Roll_Output'Range loop
                if Roll_Output(J).Color /= D_Null and Roll_Output(J).Outcome = Sett then
-                  Settlers(I-1) := Roll_Output(J).Color; 
+                  Settlers(I-1) := Roll_Output(J).Color;
                   Roll_Output(J).Color := D_Null;
                   exit;
                end if;
             end loop;
          end loop;
       end if;
-      Put_Line("P" & P'Img & ") Przenioslem pozostale kostki do settlers");
-   end settle;
-   
-   procedure unused_settlers_to_cup(Roll_Output: in out Dice_Array; Cup: in out Dices) is
+   end Settle;
+
+   procedure Unused_Settlers_To_Cup(Roll_Output: in out Dice_Array; Cup: in out Dices) is
    begin
       for I in Roll_Output'Range loop
          if Roll_Output(I).Color /= D_Null and Roll_Output(I).Outcome = Sett then
@@ -339,9 +338,9 @@ package body Player_Operations is
             end loop;
          end if;
       end loop;
-   end unused_settlers_to_cup;
-   
-   procedure produce(Roll_Output: in out Dice_Array; Planets: in out Planet_Array; Cup: in out Dices) is
+   end Unused_Settlers_To_Cup;
+
+   procedure Produce(Roll_Output: in out Dice_Array; Planets: in out Planet_Array; Cup: in out Dices) is
    begin
       --najpierw probujemy dopasowac do kazdej pustej planety odpowiedni kolor dobra
       for I in Planets'Range loop
@@ -349,7 +348,7 @@ package body Player_Operations is
          if Planets(I).Color /= P_Gray and Planets(I).Value > -1 and Planets(I).Good = D_Null then
             --poszukaj produkujacej kostki w odpowiednim kolorze
             for J in Roll_Output'Range loop
-               if Roll_Output(J).Outcome = Prod and then is_the_same_color(Planets(I).Color, Roll_Output(J).Color) then
+               if Roll_Output(J).Outcome = Prod and then Is_The_Same_Color(Planets(I).Color, Roll_Output(J).Color) then
                   Planets(I).Good := Roll_Output(J).Color;
                   Roll_Output(J).Color := D_Null;
                   exit;
@@ -357,7 +356,7 @@ package body Player_Operations is
             end loop;
          end if;
       end loop;
-      
+
       --nastepnie wyprodukuj na pozostalych planetach niezaleznie od koloru kostek
       for I in Planets'Range loop
          if Planets(I).Color /= P_Gray and Planets(I).Value > -1 and Planets(I).Good = D_Null then
@@ -370,7 +369,7 @@ package body Player_Operations is
             end loop;
          end if;
       end loop;
-      
+
       --jesli zostaly kosci z akcja produkcji przenies je do kubka
       for I in Roll_Output'Range loop
          if Roll_Output(I).Color /= D_Null and Roll_Output(I).Outcome = Prod then
@@ -383,9 +382,9 @@ package body Player_Operations is
             end loop;
          end if;
       end loop;
-   end produce;
-   
-   function is_the_same_color(Planet_Col: Planet_Color; Dice_Col: Dice_Color) return Boolean is
+   end Produce;
+
+   function Is_The_Same_Color(Planet_Col: Planet_Color; Dice_Col: Dice_Color) return Boolean is
    begin
       if Planet_Col = P_Blue and Dice_Col = Blue then
          return True;
@@ -400,22 +399,22 @@ package body Player_Operations is
       else
          return False;
       end if;
-   end is_the_same_color;              
-   
-   procedure deliver(Roll_Output: in out Dice_Array; Planets: in out Planet_Array; Points: in out Integer;
+   end Is_The_Same_Color;
+
+   procedure Deliver(Roll_Output: in out Dice_Array; Planets: in out Planet_Array; Points: in out Integer;
                      Population: in out Dices; Cup: in out Dices) is
-      one_delivery_points: Integer;
+      One_Delivery_Points: Integer;
    begin
       --najpierw staramy sie dostarczyc kostka o kolorze zgodnym z kolorem planety
       for I in Planets'Range loop
          if Planets(I).Value > -1 and Planets(I).Good /= D_Null then
             --poszukaj dostarczajacej kostki w odpowidnim kolorze
             for J in Roll_Output'Range loop
-               if Roll_Output(J).Outcome = Ship and then is_the_same_color(Planets(I).Color, Roll_Output(J).Color) then
+               if Roll_Output(J).Outcome = Ship and then Is_The_Same_Color(Planets(I).Color, Roll_Output(J).Color) then
                   --ocen ile punktow sie nalezy
-                  one_delivery_points := 2;
-                  if is_the_same_color(Planets(I).Color, Planets(I).Good) then
-                     one_delivery_points := 3;
+                  One_Delivery_Points := 2;
+                  if Is_The_Same_Color(Planets(I).Color, Planets(I).Good) then
+                     One_Delivery_Points := 3;
                   end if;
                   --dodaj do populacji kostke dobra z planety
                   for K in Population'Range loop
@@ -434,21 +433,21 @@ package body Player_Operations is
                      end if;
                   end loop;
                   --przyznaj graczowi punkty
-                  Points := Points + one_delivery_points;
+                  Points := Points + One_Delivery_Points;
                   exit;
                end if;
             end loop;
          end if;
       end loop;
-      
+
       --nastepnie dostarczamy pozostalymi kostkami
       for I in Planets'Range loop
          if Planets(I).Value > -1 and Planets(I).Good /= D_Null then
             for J in Roll_Output'Range loop
                if Roll_Output(J).Color /= D_Null and Roll_Output(J).Outcome = Ship then
-                  one_delivery_points := 1;
-                  if is_the_same_color(Planets(I).Color, Planets(I).Good) then
-                     one_delivery_points := 2;
+                  One_Delivery_Points := 1;
+                  if Is_The_Same_Color(Planets(I).Color, Planets(I).Good) then
+                     One_Delivery_Points := 2;
                   end if;
                   --dodaj do populacji kostke dobra z planety
                   for K in Population'Range loop
@@ -467,13 +466,13 @@ package body Player_Operations is
                      end if;
                   end loop;
                   --przyznaj graczowi punkty
-                  Points := Points + one_delivery_points;
+                  Points := Points + One_Delivery_Points;
                   exit;
                end if;
             end loop;
          end if;
       end loop;
-            
+
       --niewykorzystane kostki z akcja dostawy przenies do kubka
       for I in Roll_Output'Range loop
          if Roll_Output(I).Color /= D_Null and Roll_Output(I).Outcome = Ship then
@@ -486,22 +485,22 @@ package body Player_Operations is
             end loop;
          end if;
       end loop;
-   end deliver;
-   
-   procedure buy_dices(Population: in out Dices; Cup: in out Dices; Money: in out Credits) is
-      num_of_dices_in_pop : Integer := 0;
-      gen                 : Random_Index.Generator;
-      ind                 : Integer;
+   end Deliver;
+
+   procedure Buy_Dices(Population: in out Dices; Cup: in out Dices; Money: in out Credits) is
+      Num_Of_Dices_In_Pop : Integer := 0;
+      Gen                 : Random_Index.Generator;
+      Ind                 : Integer;
    begin
       --policz ile jest kosci w populacji
       for I in Population'Range loop
          if Population(I) /= D_Null then
-            num_of_dices_in_pop := num_of_dices_in_pop + 1;
+            Num_Of_Dices_In_Pop := Num_Of_Dices_In_Pop + 1;
          end if;
       end loop;
-      
+
       --jesli stac Cie na wszystkie kostki kup wszystkie
-      if Integer(Money) >= num_of_dices_in_pop then
+      if Integer(Money) >= Num_Of_Dices_In_Pop then
          for I in Population'Range loop
             if Population(I) /= D_Null then
                --dodaj kostke do kubka
@@ -517,18 +516,18 @@ package body Player_Operations is
          end loop;
       --jesli nie, wybierz losowe kosci w liczbie rownej Money
       else
-         Random_Index.Reset(gen);
+         Random_Index.Reset(Gen);
          for I in 1..Integer(Money) loop
-            --wylosuj indeks pod ktorym znajduje sie kostka
-            ind := Random_Index.Random(gen) mod 15;
-            while Population(ind) = D_Null loop
-               ind := Random_Index.Random(gen) mod 15;
+            --wylosuj Indeks pod ktorym znajduje sie kostka
+            Ind := Random_Index.Random(Gen) mod 15;
+            while Population(Ind) = D_Null loop
+               Ind := Random_Index.Random(Gen) mod 15;
             end loop;
             --przenies kostke z populacji do kubka
             for J in Cup'Range loop
                if Cup(J) = D_Null then
-                  Cup(J) := Population(ind);
-                  Population(ind) := D_Null;
+                  Cup(J) := Population(Ind);
+                  Population(Ind) := D_Null;
                   --i zaplac za nia
                   Money := Money - 1;
                   exit;
@@ -536,15 +535,15 @@ package body Player_Operations is
             end loop;
          end loop;
       end if;
-      
+
       --zgodnie z zasadami, jesli po kupieniu kosci zostanie 0 kredytow, nalezy przyznac jeden kredyt
       if Money = 0 then
          Money := 1;
       end if;
-  
-   end buy_dices;
-            
-   procedure unused_dices_to_cup(Roll_Output: in out Dice_Array; Cup: in out Dices) is
+
+   end Buy_Dices;
+
+   procedure Unused_Dices_To_Cup(Roll_Output: in out Dice_Array; Cup: in out Dices) is
    begin
       for I in Roll_Output'Range loop
          if Roll_Output(I).Color /= D_Null then
@@ -557,39 +556,40 @@ package body Player_Operations is
             end loop;
          end if;
       end loop;
-   end unused_dices_to_cup;
-   
-   function activated_to_string(ActivatedActions: Activated) return Unbounded_String is
-      result: Unbounded_String := To_Unbounded_String("");
+   end Unused_Dices_To_Cup;
+
+   function Activated_To_String(Activated_Actions: Activated) return Unbounded_String is
+      Result: Unbounded_String := To_Unbounded_String("");
    begin
-      if ActivatedActions(1) then
-         result := result & "Explore; ";
+      if Activated_Actions(1) then
+         Result := Result & "Explore; ";
       end if;
-      if ActivatedActions(2) then
-         result := result & "Settle; ";
+      if Activated_Actions(2) then
+         Result := Result & "Settle; ";
       end if;
-      if ActivatedActions(3) then
-         result := result & "Produce; ";
+      if Activated_Actions(3) then
+         Result := Result & "Produce; ";
       end if;
-      if ActivatedActions(4) then
-         result := result & "Ship;";
+      if Activated_Actions(4) then
+         Result := Result & "Ship;";
       end if;
-      return result;
-   end activated_to_string;
-   
-   function points_total(Planets: in Planet_Array; Points: Integer) return Integer is
-      result : Integer := Points;
+      return Result;
+   end Activated_To_String;
+
+   function Points_Total(Planets: in Planet_Array; Points: Integer) return Integer is
+      Result : Integer := Points;
    begin
       for I in Planets'Range loop
          if Planets(I).Value > -1 then
-            result := result + Planets(I).Value;
+            Result := Result + Planets(I).Value;
          end if;
       end loop;
-      return result;
-   end points_total;
-   
+      return Result;
+   end Points_Total;
+
 begin
-   Initial_Planets(0) := (To_Unbounded_String("Alpha Centuri"), P_Brown, 1, D_Null, D_Null, Brown, 0);   
+   -- implementacja kafelków planet
+   Initial_Planets(0) := (To_Unbounded_String("Alpha Centuri"), P_Brown, 1, D_Null, D_Null, Brown, 0);
    Initial_Planets(1) := (To_Unbounded_String("Stara ziemia"), P_Gray, 3, Purple, D_null, D_Null, 0);
    Initial_Planets(2) := (To_Unbounded_String("Zaginiona ziemska kolonia"), P_Blue, 2, D_Null, D_Null, Blue, 0);
    Initial_Planets(3) := (To_Unbounded_String("Umierajaca planeta"), P_Gray, 0, D_Null, D_Null, D_Null, 8);
@@ -598,7 +598,7 @@ begin
    Initial_Planets(6) := (To_Unbounded_String("Kolonia seperatystow"), P_Gray, 2, D_Null, Red, D_Null, 0);
    Initial_Planets(7) := (To_Unbounded_String("Planeta pielgrzymek"), P_Blue, 3, D_Null, D_Null, Blue, 0);
    Initial_Planets(8) := (To_Unbounded_String("Stacja obslugi tunelu"), P_Brown, 3, D_Null, Brown, D_Null, 0);
-   Initial_Planets(9) := (To_Unbounded_String("Planeta generycznie wsp..."), P_Gray, 2, D_Null, Green, D_Null, 0);
+   Initial_Planets(9) := (To_Unbounded_String("Planeta Generycznie wsp..."), P_Gray, 2, D_Null, Green, D_Null, 0);
    Initial_Planets(10) := (To_Unbounded_String("Obudzona baza obcych"), P_Yellow, 3, Red, D_Null, D_Null, 0);
    Initial_Planets(11) := (To_Unbounded_String("Ostatni Gnarssz"), P_Green, 0, Green, D_Null, D_Null, 0);
    Initial_Planets(12) := (To_Unbounded_String("Ukryta forteca"), P_Gray, 2, Red, D_Null, D_Null, 0);
@@ -619,7 +619,7 @@ begin
    Planet_Sack(10) := (To_Unbounded_String("Galaktyczny osrodek spa"), P_Blue, 3, D_Null, D_Null, Blue, 0);
    Planet_Sack(11) := (To_Unbounded_String("Terraformowana planeta"), P_Gray, 5, Purple, D_Null, D_Null, 2);
    Planet_Sack(12) := (To_Unbounded_String("Zbiegle roboty"), P_Brown, 2, D_Null, Red, D_Null, 0);
-   Planet_Sack(13) := (To_Unbounded_String("Nadzorcy wspom. genet."), P_Green, 3, D_Null, Green, D_Null, 0);
+   Planet_Sack(13) := (To_Unbounded_String("Nadzorcy wspom. Genet."), P_Green, 3, D_Null, Green, D_Null, 0);
    Planet_Sack(14) := (To_Unbounded_String("Rafineria paliwa"), P_Brown, 3, D_Null, D_Null, Brown, 0);
    Planet_Sack(15) := (To_Unbounded_String("Galaktyczna stacja paliw"), P_Brown, 3, D_Null, D_Null, Brown, 0);
    Planet_Sack(16) := (To_Unbounded_String("Planeta arsenal"), P_Brown, 4, D_Null, D_Null, Brown, 1);
@@ -654,5 +654,5 @@ begin
    Planet_Sack(45) := (To_Unbounded_String("Pas asteroid"), P_Brown, 2, D_Null, Brown, D_Null, 0);
    Planet_Sack(46) := (To_Unbounded_String("Radioaktywna planeta"), P_Brown, 2, D_Null, Brown, D_Null, 0);
    Planet_Sack(47) := (To_Unbounded_String("Planeta banitow"), P_Gray, 2, D_Null, Red, D_Null, 0);
-   
+
 end Player_Operations;
